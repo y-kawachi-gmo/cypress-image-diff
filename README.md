@@ -54,18 +54,6 @@ describe('Visuals', () => {
 })
 ```
 
-Additionally, you can also pass run options, where you can allow comparison to fail. This is useful if you want to generate visual test report, but do not want to fail whole cypress suite in case of failure.
-
-```js
-describe('Visuals', () => {
-  it('should compare screenshot of the entire page', () => {
-    cy.visit('www.google.com')
-    cy.compareSnapshot('home-page-with-threshold', {threshold: 0.2, allowToFail: true})
-  })
-})
-```
-
-
 You can also retry the snapshot comparison by passing in an optional third parameter. It accepts the same options as [cypress-recurse](https://github.com/bahmutov/cypress-recurse#options).
 
 ```js
@@ -130,6 +118,17 @@ In order to force the screenshot resolution when running a test you will need to
 {
   "viewportWidth": 1000, // Default value: 1280
   "viewportHeight": 660 // Default value: 720
+}
+```
+
+### Preserving the original screenshot
+All screenshots will be renamed and moved from the default screenshot location to a new screenshot folder structure. To preserve the screenshot in the original location, set the following values in `cypress.json`:
+
+```json
+{
+  "env": {
+    "preserveOriginalScreenshot": true
+  }
 }
 ```
 
