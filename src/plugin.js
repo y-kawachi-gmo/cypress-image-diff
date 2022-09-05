@@ -26,7 +26,7 @@ const tearDownDirs = () => {
 
 const generateReport = (instance = '') => {
   if (testStatuses.length > 0) {
-    createReport({ tests: testStatuses, instance })
+    createReport({ tests: JSON.stringify(testStatuses), instance })
   }
   return true
 }
@@ -97,7 +97,12 @@ async function compareSnapshotsPlugin(args) {
   }
 
   // Saving test status object to build report if task is triggered
-  testStatuses.push(new TestStatus(!testFailed, args.testName))
+  testStatuses.push(new TestStatus({ 
+    status: !testFailed,
+    name: args.testName,
+    percentage,
+    failureThreshold: args.testThreshold
+  }))
 
   return percentage
 }
@@ -134,6 +139,13 @@ const getCompareSnapshotsPlugin = (on, config) => {
   // Intercept cypress screenshot and create a new image with our own
   // name convention and file structure for simplicity and consistency
   on('after:screenshot', details => {
+    // A screenshot could be taken automatically due to a test failure
+    // and not a call to cy.compareSnapshot / cy.screenshot. These files
+    // should be left alone
+    if (details.testFailure) {
+      return;
+    }
+
     // Change screenshots file permission so it can be moved from drive to drive
     setFilePermission(details.path, 0o777)
     setFilePermission(paths.image.comparison(details.name), 0o777)
